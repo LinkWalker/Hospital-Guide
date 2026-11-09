@@ -1,0 +1,26 @@
+<view class="container">
+  <view class="section-title">1. 选择不适部位</view>
+  <!-- 部位选择标签 -->
+  <view class="tags-group">
+    <view class="tag {{selectedPart === item ? 'active' : ''}}" 
+          wx:for="{{parts}}" wx:key="*this" 
+          bindtap="selectPart" data-part="{{item}}">
+      {{item}}
+    </view>
+  </view>
+
+  <view class="section-title">2. 选择症状感觉</view>
+  <!-- 症状选择标签 -->
+  <view class="tags-group">
+    <view class="tag {{selectedSymptom === item ? 'active' : ''}}" 
+          wx:for="{{symptoms}}" wx:key="*this" 
+          bindtap="selectSymptom" data-symptom="{{item}}">
+      {{item}}
+    </view>
+  </view>
+
+  <view class="section-title">3. 补充说明（选填）</view>
+  <textarea class="extra-input" placeholder="例如：持续了三天，伴有发烧..." bindinput="onExtraInput"></textarea>
+
+  <button class="submit-btn" type="primary" bindtap="submit">开始智能分诊</button>
+</view>

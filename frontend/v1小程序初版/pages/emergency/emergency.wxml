@@ -1,0 +1,7 @@
+<view class="emergency-container">
+  <view class="icon">⚠️</view>
+  <view class="title">检测到急症风险！</view>
+  <view class="desc">根据您的描述，可能涉及危及生命的状况，请立即前往急诊或拨打急救电话。</view>
+  <button class="call-btn" type="warn" bindtap="call120" style="position: relative; left: 1rpx; top: -8rpx">📞 拨打 120</button>
+  <view class="back-btn" bindtap="goBack">返回修改症状</view>
+</view>

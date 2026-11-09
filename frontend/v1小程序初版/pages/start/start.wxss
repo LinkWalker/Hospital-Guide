@@ -1,0 +1,11 @@
+page { background-color: #f5f6f8; height: 100vh; }
+.start-container { display: flex; flex-direction: column; align-items: center; height: 100vh; padding: 40rpx; box-sizing: border-box; }
+.header { margin-top: 150rpx; text-align: center; margin-bottom: 100rpx; }
+.logo-icon { font-size: 120rpx; margin-bottom: 20rpx; }
+.app-name { font-size: 56rpx; font-weight: bold; color: #333; margin-bottom: 20rpx; letter-spacing: 4rpx; }
+.app-slogan { font-size: 28rpx; color: #888; }
+.start-box { width: 80%; margin: 0 auto; background: #fff; padding: 40rpx 30rpx; border-radius: 24rpx; border: 2rpx dashed #0066cc; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4rpx 12rpx rgba(0, 102, 204, 0.1); transition: all 0.2s; }
+.start-box:active { background: #e6f0ff; transform: scale(0.98); }
+.placeholder { color: #0066cc; font-size: 32rpx; font-weight: bold; }
+.arrow { color: #0066cc; font-size: 36rpx; }
+.disclaimer { font-size: 24rpx; color: #999; text-align: center; position: absolute; bottom: 60rpx; padding: 0 40rpx; line-height: 1.5; }

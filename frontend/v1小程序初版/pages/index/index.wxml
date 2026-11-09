@@ -1,0 +1,40 @@
+<view class="chat-container">
+  <scroll-view class="chat-list" scroll-y scroll-into-view="{{scrollToId}}">
+    <view class="msg-left">
+      <view class="bubble">您好，我是AI智能导诊助手。请问您哪里不舒服？</view>
+    </view>
+
+    <block wx:for="{{chatHistory}}" wx:key="index">
+      <view class="{{item.role === 'user' ? 'msg-right' : 'msg-left'}}" id="msg-{{index}}">
+        <view class="bubble {{item.role === 'user' ? 'bubble-user' : ''}}">{{item.content}}</view>
+      </view>
+    </block>
+
+    <view class="msg-left" wx:if="{{isThinking}}" id="msg-thinking">
+      <view class="bubble">AI 思考中...</view>
+    </view>
+    
+    <view style="height: 200px;"></view>
+  </scroll-view>
+
+  <view class="input-area" wx:if="{{!showReport}}">
+    <view class="voice-btn" bindtap="handleVoice">🎤</view>
+    <input class="input-box" placeholder="描述症状，如：肚子疼" bindinput="onInput" value="{{inputText}}" confirm-type="send" bindconfirm="sendMsg"/>
+    <button class="send-btn" bindtap="sendMsg">发送</button>
+  </view>
+
+  <view class="report-card" wx:if="{{showReport}}">
+    <view class="report-header">📋 智能分诊报告</view>
+    <view class="report-conclusion">
+      <view class="main-dept">首选科室：{{reportData.department}}</view>
+      <view class="sub-dept">备选：{{reportData.backup}}</view>
+    </view>
+    <view class="report-reason">判断依据：{{reportData.reason}}</view>
+    
+    <view class="report-actions">
+      <button class="action-btn" bindtap="openMap">🗺️ 查看院内导航</button>
+      <button class="action-btn primary" bindtap="copyScript">📋 一键复制就诊话术</button>
+    </view>
+    <view class="disclaimer">仅供参考，不替代医生诊断</view>
+  </view>
+</view>

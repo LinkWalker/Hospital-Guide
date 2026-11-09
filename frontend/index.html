@@ -1,0 +1,612 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智能导诊 · 墨刀复刻版（门诊排队）</title>
+<style>
+  :root {
+    --blue: #4a90e2;
+    --blue-dark: #3a7bd5;
+    --red: #c62828;
+    --orange: #e8a33d;
+    --bg: #f7f7f7;
+    --ink: #1f2a37;
+    --muted: #9aa0a6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    background: #e6e9ec;
+    display: flex; align-items: center; justify-content: center;
+  }
+  /* 手机外框（iPhone 风格：黑边 + 灵动岛） */
+  .phone {
+    width: 400px; height: 820px; max-height: 96vh;
+    background: #fff;
+    border-radius: 44px;
+    box-shadow: 0 24px 70px rgba(0,0,0,.30), 0 0 0 9px #1b1b1d;
+    position: relative; overflow: hidden;
+    display: flex; flex-direction: column;
+    padding-top: 0;
+  }
+  .island {
+    position: absolute; top: 22px; left: 50%; transform: translateX(-50%);
+    width: 92px; height: 26px; background: #000; border-radius: 999px; z-index: 40;
+  }
+  /* 状态栏 */
+  .statusbar {
+    height: 44px; flex-shrink: 0; background: #fff;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 18px; font-size: 13px; font-weight: 600; color: #111;
+  }
+  .statusbar .icons { display: flex; align-items: center; gap: 5px; }
+  .statusbar .icons svg { display: block; }
+  /* 导航栏 */
+  .navbar {
+    height: 46px; flex-shrink: 0; background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; border-bottom: 1px solid #eee;
+  }
+  .navbar .nav-left { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; }
+  .navbar .nav-title { font-size: 16px; font-weight: 600; color: #111; }
+  .navbar .capsule {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    height: 28px; width: 76px; border: 1px solid #d5d5d5; border-radius: 999px;
+    display: flex; align-items: center; justify-content: space-around; background: #fff;
+  }
+  .navbar .capsule .dots { font-size: 14px; color: #333; letter-spacing: 1px; }
+  .navbar .capsule .ring { width: 14px; height: 14px; border: 2.5px solid #333; border-radius: 50%; }
+  .ai-badge {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: linear-gradient(135deg, #6fb3f2, var(--blue-dark));
+    color: #fff; font-size: 12px; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  /* 内容区 */
+  .screen { flex: 1; overflow-y: auto; position: relative; }
+  .view { display: none; height: 100%; flex-direction: column; }
+  .view.active { display: flex; }
+
+  /* ============ 启动页 ============ */
+  #view-start { align-items: center; padding: 0 28px; background: #fff; }
+  .start-logo {
+    margin-top: 56px; width: 130px; height: 130px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .start-title { margin-top: 22px; font-size: 34px; font-weight: 800; color: var(--blue); letter-spacing: 2px; }
+  .start-sub { margin-top: 10px; font-size: 15px; color: var(--blue); opacity: .9; }
+  .start-btn {
+    margin-top: 90px; width: 100%; height: 56px;
+    background: var(--blue); color: #fff; border: none; border-radius: 999px;
+    font-size: 17px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px;
+    cursor: pointer; box-shadow: 0 6px 18px rgba(74,144,226,.35);
+    transition: .2s;
+  }
+  .start-btn:hover { background: var(--blue-dark); }
+  .start-warn {
+    position: absolute; bottom: 22px; left: 0; right: 0;
+    text-align: center; font-size: 12px; color: #d89a2b; line-height: 1.7; padding: 0 20px;
+  }
+  .start-warn .ico { font-size: 13px; }
+
+  /* ============ 对话页 ============ */
+  #view-chat { background: #fff; }
+  .chat-list { flex: 1; overflow-y: auto; padding: 14px 12px 8px; }
+  .msg-row { display: flex; margin-bottom: 14px; align-items: flex-start; gap: 8px; }
+  .msg-row.user { flex-direction: row-reverse; }
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 13px; font-weight: 700;
+  }
+  .avatar.ai { background: linear-gradient(135deg, #6fb3f2, var(--blue-dark)); }
+  .avatar.user { background: #2a63b5; }
+  .bubble {
+    max-width: 76%; padding: 10px 14px; border-radius: 16px;
+    font-size: 14.5px; line-height: 1.65; color: var(--ink); white-space: pre-wrap; word-break: break-word;
+  }
+  .msg-row.ai .bubble { background: #fff; border: 1px solid #e8e8e8; border-top-left-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+  .msg-row.user .bubble { background: #ededed; border: 1px solid #e3e3e3; border-top-right-radius: 4px; }
+  .chat-tools { padding: 0 14px 6px; display: flex; justify-content: flex-end; }
+  .sim-link {
+    font-size: 12px; color: var(--blue); border: 1px solid var(--blue);
+    border-radius: 6px; padding: 5px 10px; cursor: pointer; background: #fff;
+  }
+  .sim-link:hover { background: #eef4fd; }
+  .inputbar {
+    flex-shrink: 0; background: #fff; border-top: 1px solid #ececec;
+    padding: 10px 12px; display: flex; gap: 10px; align-items: center;
+  }
+  .inputbar input {
+    flex: 1; height: 42px; border-radius: 999px; border: 1px solid #e2e2e2;
+    background: #f2f2f2; padding: 0 16px; font-size: 14px; outline: none; color: var(--ink);
+  }
+  .inputbar input:focus { border-color: var(--blue); background: #fff; }
+  .inputbar .send {
+    height: 42px; padding: 0 20px; border: none; border-radius: 999px;
+    background: var(--blue); color: #fff; font-size: 15px; cursor: pointer;
+  }
+  .inputbar .send:disabled { opacity: .5; }
+
+  /* ============ 急症页 ============ */
+  #view-emergency { align-items: center; padding: 0 26px; background: #fff; }
+  .emg-icon { margin-top: 56px; width: 130px; height: 130px; }
+  .emg-title { margin-top: 18px; font-size: 26px; font-weight: 800; color: var(--red); }
+  .emg-desc { margin-top: 16px; font-size: 15px; line-height: 1.8; color: #333; text-align: center; }
+  .emg-btn {
+    margin-top: 46px; width: 100%; height: 54px; border: none; border-radius: 999px;
+    background: var(--red); color: #fff; font-size: 16px; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: 0 6px 18px rgba(198,40,40,.3);
+  }
+  .emg-btn:hover { background: #b71c1c; }
+  .emg-back { margin-top: 22px; font-size: 14px; color: #999; cursor: pointer; text-decoration: underline; }
+
+  /* ============ 报告弹窗 ============ */
+  .overlay {
+    position: absolute; inset: 0; background: rgba(0,0,0,.18); display: none;
+    align-items: flex-end; z-index: 20;
+  }
+  .overlay.show { display: flex; }
+  .report-card {
+    width: 100%; background: #fff; border-radius: 18px 18px 0 0;
+    padding: 20px 20px 26px; transform: translateY(100%); transition: transform .25s ease;
+    max-height: 72%; overflow-y: auto;
+  }
+  .overlay.show .report-card { transform: translateY(0); }
+  .report-title { text-align: center; font-size: 19px; font-weight: 700; color: #111; }
+  .report-sub { text-align: center; font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .report-label { text-align: center; font-size: 13px; color: #555; margin-top: 14px; }
+  .report-dept {
+    text-align: center; font-size: 30px; font-weight: 800; color: var(--red);
+    margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .report-dept .chk {
+    width: 26px; height: 26px; border-radius: 50%; background: var(--red); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 15px;
+  }
+  .report-alt { text-align: center; font-size: 13px; color: var(--red); margin-top: 6px; }
+  .report-basis {
+    margin-top: 16px; border: 1px solid #eee; border-radius: 12px;
+    padding: 12px 14px; background: #fff;
+  }
+  .report-basis .b-title { font-size: 13px; font-weight: 700; color: #111; margin-bottom: 6px; }
+  .report-basis .b-text { font-size: 14px; line-height: 1.7; color: #222; }
+  .report-btns { display: flex; gap: 12px; margin-top: 18px; }
+  .report-btns button {
+    flex: 1; height: 46px; border-radius: 10px; font-size: 15px; cursor: pointer;
+  }
+  .btn-outline { background: #fff; border: 1px solid #ddd; color: #222; }
+  .btn-primary { background: var(--blue); border: none; color: #fff; }
+  .btn-primary:hover { background: var(--blue-dark); }
+
+  /* ============ 复制话术弹窗 ============ */
+  .copy-modal {
+    position: absolute; inset: 0; background: rgba(0,0,0,.35); display: none;
+    align-items: center; justify-content: center; z-index: 30;
+  }
+  .copy-modal.show { display: flex; }
+  .copy-box {
+    width: 78%; background: #6d6d6d; color: #fff; border-radius: 12px;
+    padding: 26px 18px; text-align: center;
+  }
+  .copy-box .t { font-size: 17px; font-weight: 600; }
+  .copy-box .back {
+    margin-top: 16px; display: inline-block; background: #fff; color: #333;
+    border-radius: 999px; padding: 7px 26px; font-size: 14px; cursor: pointer;
+  }
+
+  /* ============ 地图占位 ============ */
+  .map-modal {
+    position: absolute; inset: 0; background: rgba(0,0,0,.35); display: none;
+    align-items: center; justify-content: center; z-index: 30;
+  }
+  .map-modal.show { display: flex; }
+  .map-box {
+    width: 82%; background: #fff; border-radius: 14px; padding: 26px 18px; text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,.2);
+  }
+  .map-box .world { font-size: 64px; line-height: 1; }
+  .map-box .t { margin-top: 16px; font-size: 15px; color: #333; }
+  .map-box .back {
+    margin-top: 18px; display: inline-block; border: 1px solid #ddd; border-radius: 999px;
+    padding: 7px 26px; font-size: 14px; color: #333; cursor: pointer; background: #fff;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="island"></div>
+  <!-- 状态栏 -->
+  <div class="statusbar">
+    <span>12:00</span>
+    <span class="icons">
+      <svg width="17" height="12" viewBox="0 0 17 12"><rect x="0" y="7" width="3" height="5" rx="1" fill="#111"/><rect x="4.5" y="5" width="3" height="7" rx="1" fill="#111"/><rect x="9" y="2.5" width="3" height="9.5" rx="1" fill="#111"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#111"/></svg>
+      <svg width="15" height="12" viewBox="0 0 15 12"><path d="M7.5 10.5l2-2.4a3 3 0 0 0-4 0l2 2.4z" fill="#111"/><path d="M3.5 6.2a6 6 0 0 1 8 0" stroke="#111" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M1.2 3.4a9.5 9.5 0 0 1 12.6 0" stroke="#111" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>
+      <svg width="24" height="12" viewBox="0 0 24 12"><rect x="0.5" y="1.5" width="20" height="9" rx="2.5" stroke="#111" stroke-width="1.2" fill="none"/><rect x="2" y="3" width="15" height="6" rx="1.5" fill="#111"/><rect x="21.5" y="4" width="2" height="4" rx="1" fill="#111"/></svg>
+    </span>
+  </div>
+
+  <!-- 导航栏（对话/急症页显示） -->
+  <div class="navbar" id="navbar" style="display:none">
+    <div class="nav-left" id="navBack" style="display:none">
+      <svg width="20" height="20" viewBox="0 0 20 20"><path d="M12.5 4l-6 6 6 6" stroke="#111" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="nav-left" id="navAi" style="display:none"><div class="ai-badge">AI</div></div>
+    <div class="nav-title">智能导诊</div>
+    <div class="capsule"><span class="dots">•••</span><span class="ring"></span></div>
+  </div>
+
+  <div class="screen">
+    <!-- ============ 启动页 ============ -->
+    <div class="view active" id="view-start">
+      <div class="start-logo">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAAMyUlEQVR4nO3dXW5cVQJGUYMyitxxECmZv4IUxuFMI/3Q3UIyCbar7q3zs9d6RmCfiu+365SBpycAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOBMv536d+Phnj//8cOxA6Mcf/5lRxblhZucgQdWJhDmJQAmYuyBAlEwBwEwkMEHEASjCIAHMvgAr3ND8BgC4GJGH+B2YuA6AuACRh/gfGLgXALgRIYf4HpC4BwC4E5GH2AcMXA7AXAjww8wDyHwfgLgnQw/wLyEwNsJgDcy/ADrEAKvEwCvMPwA6xICvyYAfsHwA+xDCPyTAHjB8APsSwj8TQD8j+EH6Dj8b4yffh/9IszA+AO0PH/+48dTXPoGwB8AAI7obUDymzb8ANRDIPcRgPEHwD7EAsD4A2An/itx3WH4AXivY/OPBLa/ATD+ANiPWAAYfwDsyM9teb1h+AE427HZRwLb3QAYfwDsSywAjD8AdiYWAMYfAHsTCwDjD4DdiQWA8QfA/rzfsr/RaPgBmMWx4L8hsOQNgPEHYCbPC/7vhZcLgBUPGYD9PS+2T0sFwGqHC0DL80I7tUwArHSoAHQ9L7JXywQAABALgFVqCgBW2a3pA2CFQwSA1fZr6gCY/fAAYNUdmzYAZj40AFh9z6YMgFkPCwB22bXpAmDGQwKA3fZtugAAAGIBMFsdAcCuOzdNAMx0KACw+95NEQCzHAYAVHZvigAAAGIBMEMFAUBt/34vf/MAUN3BYQFg/AHgadgeDv8IAACIBIB3/wAwdhfdAABA0MMDwLt/ABi/jw8NAOMPAHPspI8AACDoYQHg3T8AzLOXbgAAIOghAeDdPwDMtZtuAAAg6PIA8O4fAObbTzcAABB0aQB49w8Ac+6oGwAACLosALz7B4B599QNAAAEXRIA3v0DwNy76gYAAIJODwDv/gHgfGfvqxsAAAgSAAAQdGoAuP4HgOucubNuAAAg6LQA8O4fAK531t66AQCAIAEAAEGnBIDrfwB4nDN21w0AAAQJAAAIujsAXP8DwOPdu79uAAAgSAAAQJAAAICguwLA5/8AMM49O+wGAACCBAAABAkAAAi6OQB8/g8A4926x24AACBIAABAkAAAgCABAABBNwWAXwAEgHncsstuAAAg6MPoLwCKPn79NvpLmM73L59GfwmQIgDgQYz+289HDMD1BABczPDffmZCAK7jdwDgQsbf+cGsBABcxPg7R5iZAIALGH/nCdsFgP8GAPw7438N5wrn7rMbADiRkbqW84XzCAA4iXF6DOcM5xAAcAKj9FjOG+4nAAAgSADAnbwbHcO5w30EAAAECQAACBIAcAfX0GM5f7idAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIOjD6C+Aa338+s0RszV/xq/1/cuni/8JjCIANuSBCFzxPBEDexEAGzH8wCOeMUJgD34HYBPGH/C84T0EwAaMP+C5w3sJgMUZf8Dzh1sIgIUZf2A0z6F1CYBF+aEDZuF5tCYBsCA/bMBsPJfWIwAW44cMmJXn01oEAAAECYCFqGtgdp5T6xAAABAkAAAgSAAswrUasArPqzUIAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCAB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" width="130" height="130" alt="红十字" />
+      </div>
+      <div class="start-title">智能导诊</div>
+      <div class="start-sub">精准匹配科室，告别盲目排队</div>
+      <button class="start-btn" onclick="goChat()">
+        点击此处，开始描述症状...
+        <svg width="16" height="16" viewBox="0 0 16 16"><path d="M5 3l5 5-5 5" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="start-warn">
+        <span class="ico">⚠️</span> 本产品仅供分诊参考，不替代医生诊断；<br>急重症请立即拨打120。
+      </div>
+    </div>
+
+    <!-- ============ 对话页 ============ -->
+    <div class="view" id="view-chat">
+      <div class="chat-list" id="chatList"></div>
+      <div class="chat-tools">
+        <div class="sim-link" onclick="simulateEmergency()">急症情况模拟（例：输入胸痛）</div>
+      </div>
+      <div class="inputbar">
+        <input id="msgInput" type="text" placeholder="描绘症状，如：右下腹痛三天" />
+        <button class="send" id="sendBtn" onclick="sendMsg()">发送</button>
+      </div>
+    </div>
+
+    <!-- ============ 急症页 ============ -->
+    <div class="view" id="view-emergency">
+      <div class="emg-icon">
+        <svg width="130" height="130" viewBox="0 0 130 130">
+          <path d="M65 10 L118 105 L12 105 Z" fill="#e8a33d" rx="8"/>
+          <rect x="59" y="36" width="12" height="40" rx="4" fill="#fff"/>
+          <circle cx="65" cy="88" r="7" fill="#fff"/>
+        </svg>
+      </div>
+      <div class="emg-title">检测到急症风险</div>
+      <div class="emg-desc">根据您的描述，可能涉及危及生命的情况。<br>请立即停止线上咨询，尽快前往医院急诊科就诊。</div>
+      <button class="emg-btn" onclick="call120()">
+        <svg width="20" height="20" viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z" fill="#fff"/></svg>
+        立即拨打120急救电话
+      </button>
+      <div class="emg-back" onclick="backToChat()">返回修改症状</div>
+    </div>
+  </div>
+
+  <!-- 报告弹窗 -->
+  <div class="overlay" id="reportOverlay">
+    <div class="report-card">
+      <div class="report-title"><span class="ai-badge" style="width:22px;height:22px;font-size:10px;vertical-align:middle;margin-right:6px;">AI</span>智能导诊报告</div>
+      <div class="report-sub">Generated by AI</div>
+      <div class="report-label">建议就诊科室</div>
+      <div class="report-dept"><span class="chk">✓</span><span id="rDept">消化/外科</span></div>
+      <div class="report-alt" id="rAlt">备选科室：全科医学科</div>
+      <div class="report-basis">
+        <div class="b-title">💡 分析依据：</div>
+        <div class="b-text" id="rBasis">您描述的右下腹持续疼痛伴发热，可能为阑尾炎</div>
+      </div>
+      <div class="report-btns">
+        <button class="btn-outline" onclick="showMap()">院内导航</button>
+        <button class="btn-primary" onclick="copyScript()">复制就诊话术</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 复制话术弹窗 -->
+  <div class="copy-modal" id="copyModal">
+    <div class="copy-box">
+      <div class="t">问诊话术已复制</div>
+      <div class="back" onclick="closeCopy()">返回</div>
+    </div>
+  </div>
+
+  <!-- 地图占位弹窗 -->
+  <div class="map-modal" id="mapModal">
+    <div class="map-box">
+      <div class="world">🗺️</div>
+      <div class="t">这是一个地图占位符</div>
+      <div class="back" onclick="closeMap()">返回</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+ * 墨刀复刻版交互原型
+ * - 优先调用真实后端 POST /api/v1/chat（启动后端后自动使用）
+ * - 后端不可用时自动降级为本地模拟（mock），保证双击可演示
+ * ============================================================ */
+const API = "http://127.0.0.1:8000/api/v1/chat";
+const sessionId = (crypto.randomUUID ? crypto.randomUUID() : "s-" + Date.now());
+let mode = "detect"; // detect -> backend | mock
+
+/* ---------- 视图切换 ---------- */
+const navbar = document.getElementById("navbar");
+const navAi = document.getElementById("navAi");
+const navBack = document.getElementById("navBack");
+
+function show(viewId, opts = {}) {
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+  document.getElementById(viewId).classList.add("active");
+  navbar.style.display = "flex";
+  navAi.style.display = viewId === "view-chat" ? "flex" : "none";
+  navBack.style.display = viewId === "view-emergency" ? "flex" : "none";
+}
+
+function goChat() {
+  show("view-chat");
+  if (document.getElementById("chatList").children.length === 0) {
+    addBubble("ai", "你好，我是AI智能导诊助手。请详细描述您的症状，我将为您推荐合适的科室。");
+  }
+  document.getElementById("msgInput").focus();
+}
+
+/* ---------- 气泡 ---------- */
+function addBubble(role, text) {
+  const list = document.getElementById("chatList");
+  const row = document.createElement("div");
+  row.className = "msg-row " + role;
+  row.innerHTML = '<div class="avatar ' + role + '">' + (role === "ai" ? "AI" : "👤") + '</div><div class="bubble"></div>';
+  row.querySelector(".bubble").textContent = text;
+  list.appendChild(row);
+  list.scrollTop = list.scrollHeight;
+}
+
+/* ---------- 发送 ---------- */
+const sendBtn = document.getElementById("sendBtn");
+const msgInput = document.getElementById("msgInput");
+
+async function sendMsg() {
+  const text = msgInput.value.trim();
+  if (!text) return;
+  addBubble("user", text);
+  msgInput.value = "";
+  sendBtn.disabled = true;
+  try {
+    const resp = await dispatch(text);
+    handleResponse(resp);
+  } catch (e) {
+    handleResponse({ type: "question", message: "（网络异常）请确认后端已启动，或稍后重试。" });
+  } finally {
+    sendBtn.disabled = false;
+    msgInput.focus();
+  }
+}
+
+/* ---------- 路由：真实后端 / mock ---------- */
+async function dispatch(text) {
+  if (mode !== "mock") {
+    try {
+      const r = await fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session_id: sessionId, message: text }),
+      });
+      if (r.status === 422) { mode = "mock"; return mockDispatch(text); }
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      mode = "backend";
+      return await r.json();
+    } catch (e) {
+      mode = "mock"; // 后端不可用 → 降级 mock
+    }
+  }
+  return mockDispatch(text);
+}
+
+/* ---------- 响应处理 ---------- */
+function handleResponse(resp) {
+  if (resp.type === "urgent") {
+    show("view-emergency");
+    return;
+  }
+  if (resp.type === "question") {
+    addBubble("ai", resp.message);
+    return;
+  }
+  if (resp.type === "result") {
+    const d = resp.data || {};
+    addBubble("ai", "好的，信息已记录，正在为您生成导诊报告...");
+    setTimeout(() => showReport(d), 500);
+  }
+}
+
+/* ---------- 报告 ---------- */
+let lastReport = null;
+function showReport(d) {
+  lastReport = d;
+  document.getElementById("rDept").textContent = d.recommended_department || "综合门诊";
+  const alts = (d.alternative_departments || []).join("、");
+  document.getElementById("rAlt").textContent = alts ? "备选科室：" + alts : "";
+  const basis = (d.basis && d.basis.length) ? d.basis[0] : "根据您描述的症状初步判断";
+  document.getElementById("rBasis").textContent = basis;
+  document.getElementById("reportOverlay").classList.add("show");
+}
+
+/* ---------- 按钮行为 ---------- */
+function call120() { alert("演示环境：将拨打 120 急救电话"); }
+
+function backToChat() {
+  show("view-chat");
+}
+
+function copyScript() {
+  const script = (lastReport && lastReport.dialogue_script)
+    ? lastReport.dialogue_script
+    : "您好，我最近身体不适，想挂相关科室看看。";
+  navigator.clipboard.writeText(script).catch(() => {});
+  document.getElementById("copyModal").classList.add("show");
+}
+
+function closeCopy() { document.getElementById("copyModal").classList.remove("show"); }
+function showMap() { document.getElementById("mapModal").classList.add("show"); }
+function closeMap() { document.getElementById("mapModal").classList.remove("show"); }
+
+function simulateEmergency() {
+  addBubble("user", "我突然剧烈胸痛，还出冷汗");
+  setTimeout(() => show("view-emergency"), 400);
+}
+
+document.getElementById("msgInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") sendMsg();
+});
+
+/* 初始视图：显示导航栏（启动页：标题+胶囊，无返回/AI 图标） */
+show("view-start");
+
+/* 调试/演示直达：#chat / #emergency / #report */
+(function initFromHash() {
+  const h = (location.hash || "").replace("#", "");
+  if (h === "chat") {
+    show("view-chat");
+    addBubble("ai", "你好，我是AI智能导诊助手。请详细描述您的症状，我将为您推荐合适的科室。");
+  } else if (h === "emergency") {
+    show("view-emergency");
+  } else if (h === "report") {
+    show("view-chat");
+    addBubble("ai", "你好，我是AI智能导诊助手。请详细描述您的症状，我将为您推荐合适的科室。");
+    addBubble("user", "医生，我肚子疼了三天了，在右下边，有点难受。");
+    addBubble("ai", "了解到您右下腹痛。请问疼痛是持续性的还是阵发性的？有没有伴随发烧或恶心呕吐？");
+    addBubble("user", "一直疼，而且感觉有点发烧。");
+    setTimeout(() => showReport({
+      recommended_department: "消化/外科",
+      alternative_departments: ["全科医学科"],
+      basis: ["您描述的右下腹持续疼痛伴发热，可能为阑尾炎"],
+      dialogue_script: "您好，我肚子疼了三天了，在右下边，一直疼，而且感觉有点发烧，想挂消化外科看看。",
+    }), 300);
+  }
+})();
+
+/* ============================================================
+ * 本地模拟后端（与真实后端逻辑一致，供无后端时演示）
+ * ============================================================ */
+const EMERGENCY = ["胸痛伴出冷汗", "剧烈胸痛", "大出血", "昏迷", "抽搐", "呼吸困难", "窒息", "煤气中毒", "心脏骤停", "胎动", "卡住了", "撕裂样疼痛", "雷击样头痛", "血压200以上", "烂苹果味"];
+const URGENT = ["高烧", "口角歪斜", "说话含糊", "剧烈腹痛"];
+/* 词典顺序规则：复合词（长词）在前，单字兜底在后（否则"屁眼"会先匹配"眼"） */
+const PART_MAP = [["后脑勺","头部"],["脑袋","头部"],["额头","面部"],["下巴","面部"],["腮帮","面部"],["胸部","胸部"],["胸口","胸部"],["心口","胸部"],["心脏","胸部"],["乳房","乳房"],["乳腺","乳房"],["乳头","乳房"],["腹部","腹部"],["肚子","腹部"],["眼睛","眼部"],["耳朵","耳鼻喉"],["嗓子","咽喉"],["咽喉","咽喉"],["喉咙","咽喉"],["肩膀","肩膀"],["颈椎","颈椎"],["脖子","颈椎"],["背部","腰背"],["手臂","手臂"],["手腕","手腕"],["手指","手指"],["下肢","下肢"],["脚踝","脚踝"],["脚腕","脚踝"],["脚趾","脚趾"],["皮肤","皮肤"],["口腔","口腔"],["生殖器","生殖器"],["阴茎","生殖器"],["龟头","生殖器"],["包皮","生殖器"],["睾丸","生殖器"],["蛋蛋","生殖器"],["阴囊","生殖器"],["阴唇","生殖器"],["外阴","生殖器"],["阴道","生殖器"],["前列腺","生殖器"],["白带","生殖器"],["下面","生殖器"],["私处","生殖器"],["裆部","生殖器"],["腹股沟","腹股沟"],["肛门","肛门"],["屁眼","肛门"],["痔疮","肛门"],["屁股","臀部"],["泌尿","尿道"],["头","头部"],["腮","面部"],["胸","胸部"],["胃","腹部"],["腹","腹部"],["眼","眼部"],["耳","耳鼻喉"],["鼻","耳鼻喉"],["关节","关节"],["膝盖","关节"],["肩","肩膀"],["颈","颈椎"],["脖","颈椎"],["背","腰背"],["腰","腰背"],["手","手臂"],["腿","下肢"],["脚","下肢"],["牙","口腔"],["尿","尿道"]];
+const NATURE = [["闷","闷"],["胀","胀"],["痛","痛"],["疼","痛"],["烧心","烧灼"],["反酸","反酸"],["痒","痒"],["麻","麻"],["头晕","头晕"],["眩晕","眩晕"],["乏力","乏力"],["恶心","恶心"],["呕吐","呕吐"],["咳嗽","咳嗽"],["发烧","发烧"],["发热","发热"],["腹泻","腹泻"],["心慌","心慌"],["心悸","心悸"],["喘","气短"],["气短","气短"],["酸","酸"],["灼","烧灼"],["晕","头晕"],["咳","咳嗽"],["吐","呕吐"],["泻","腹泻"],["烧","发烧"],["扭伤","扭伤"],["挫伤","扭伤"]];
+const ACCOMPANY = ["出冷汗","发热","发烧","腹泻","呕吐","恶心","反酸","耳鸣","失眠"];
+const POPULATION = ["成年人","成人","老人","老年人","儿童","孩子","小孩","孕妇"];
+const DURATION_RE = /([一二两三四五六七八九十0-9]+(?:天|周|个月|小时|月|年|日))/;
+const DEPT_RULES = [
+  { kw: ["阴茎","龟头","包皮","睾丸","蛋蛋","阴囊","前列腺","尿痛","尿频","尿急","血尿","下体","私处","裆部","腹股沟","尿不尽","尿失禁","下面痒","私处痒","阴部痒","下面疼","下面痛"], dept: "泌尿外科", alt: ["普通内科","全科"] },
+  { kw: ["阴道","外阴","阴唇","白带","子宫","卵巢","盆腔炎","更年期","月经不调","月经","痛经"], dept: "妇科", alt: ["全科"] },
+  { kw: ["乳房","乳腺","乳头","溢乳","乳房肿块","乳房胀痛"], dept: "乳腺外科", alt: ["普通内科","全科"] },
+  { kw: ["肛门","痔疮","肛裂","便血","屁眼","脱肛"], dept: "肛肠科", alt: ["普通外科","全科"] },
+  { kw: ["胸口闷","胸闷","心慌","心悸","胸痛","气短"], dept: "心血管内科", alt: ["呼吸内科","急诊科"] },
+  { kw: ["肚子疼","肚子痛","腹痛","反酸","烧心","腹泻","拉肚子","胃痛"], dept: "消化/外科", alt: ["全科医学科"] },
+  { kw: ["咳嗽","咳痰","发烧","发热","喉咙痛","咽痛","流鼻涕","鼻塞"], dept: "呼吸内科", alt: ["普通内科"] },
+  { kw: ["头痛","头晕","眩晕"], dept: "神经内科", alt: ["全科"] },
+  { kw: ["皮肤","痒","疹","风团","湿疹","荨麻疹"], dept: "皮肤科", alt: ["变态反应科"] },
+  { kw: ["脚踝","脚腕","扭伤","骨折","脚趾","手指","手腕","腰椎","落枕"], dept: "骨科", alt: ["疼痛科","康复科"] },
+  { kw: ["孩子","儿童","小孩"], dept: "儿科", alt: ["全科"] },
+  { kw: ["眼睛","眼","视物模糊"], dept: "眼科", alt: ["全科"] },
+  { kw: ["牙痛","牙龈","口腔溃疡","智齿"], dept: "口腔科", alt: ["普通内科"] },
+  { kw: ["鼻塞","流鼻血","耳鸣","听力下降","咽喉炎"], dept: "耳鼻喉科", alt: ["呼吸内科"] },
+];
+
+let S = { collected: { part: null, nature: null, duration: null, population: null, accompanying: [] }, asked: [], turns: 0, history: [] };
+function resetState() {
+  S = { collected: { part: null, nature: null, duration: null, population: null, accompanying: [] }, asked: [], turns: 0, history: [] };
+}
+resetState();
+
+function extract(text) {
+  const r = { part: null, nature: null, duration: null, population: null, accompanying: [] };
+  for (const [w, v] of PART_MAP) { if (text.includes(w)) { r.part = v; break; } }
+  for (const [w, v] of NATURE) { if (text.includes(w)) { r.nature = v; break; } }
+  const m = text.match(DURATION_RE); if (m) r.duration = m[1];
+  for (const w of ACCOMPANY) { if (text.includes(w) && !r.accompanying.includes(w)) r.accompanying.push(w); }
+  for (const w of POPULATION) { if (text.includes(w)) { r.population = w; break; } }
+  return r;
+}
+
+function matchDept(fullText) {
+  for (const rule of DEPT_RULES) if (rule.kw.some(k => fullText.includes(k))) return rule;
+  return null;
+}
+
+function buildDoctorScript() {
+  const c = S.collected;
+  const place = c.part || "身体";
+  const natMap = { "痛": "疼痛", "闷": "发闷", "胀": "胀痛", "酸": "酸痛", "麻": "发麻", "痒": "瘙痒" };
+  const nature = natMap[c.nature] || c.nature || "不适";
+  let s = "医生您好，";
+  if (c.duration) s += "我最近" + c.duration + "出现" + place + nature;
+  else s += "我最近" + place + nature;
+  if (c.accompanying && c.accompanying.length) s += "，还伴有" + c.accompanying.join("、");
+  s += "。";
+  if (c.population && !["成人", "成年人"].includes(c.population)) s += "我是" + c.population + "。";
+  s += "想请您看看需要做什么检查、日常要注意什么，谢谢。";
+  return s;
+}
+
+function mockDispatch(message) {
+  S.history.push({ role: "user", content: message });
+  for (const kw of EMERGENCY) {
+    if (message.includes(kw)) return { type: "urgent", data: { level: "emergency", label: "紧急", keyword: kw }, message: "您描述的症状属于紧急情况，请立即到急诊科就诊或拨打 120。" };
+  }
+  for (const kw of URGENT) {
+    if (message.includes(kw)) return { type: "urgent", data: { level: "urgent", label: "次紧急", keyword: kw }, message: "症状需要尽快就医，建议前往急诊或相应科室。" };
+  }
+  const correction = /说错了|搞错|弄错|改口|更正/.test(message) || /不是.{0,20}(?:而是|是)/.test(message);
+  let current = message;
+  if (correction) {
+    S.collected = { part: null, nature: null, duration: null, population: null, accompanying: [] };
+    S.asked = []; S.turns = 0;
+    const parts = message.split(/(?:而是|说错了[，,：:]?|搞错[了]?[，,：:]?|改口[，,：:]?|更正[，,：:]?)/);
+    current = parts[parts.length - 1] || message;
+  }
+  const info = extract(current);
+  for (const f of ["part", "nature", "duration", "population"]) if (!S.collected[f] && info[f]) S.collected[f] = info[f];
+  for (const a of info.accompanying) if (!S.collected.accompanying.includes(a)) S.collected.accompanying.push(a);
+
+  const Q = [["part", "您具体是哪个部位不舒服呢？"], ["nature", "这种不适是什么感觉呢？比如是痛、闷、胀还是其他？"], ["duration", "这个症状大概持续多长时间了？"], ["population", "请问就诊对象是成人、老人、儿童还是孕妇呢？"]];
+  const missing = Q.filter(([f, q]) => !S.collected[f] && !S.asked.includes(q));
+  if (missing.length && S.turns < 3) {
+    S.turns++;
+    const q = missing[0][1];
+    S.asked.push(q);
+    return { type: "question", message: q, data: { collected: S.collected } };
+  }
+
+  const fullText = S.history.map(h => h.content).join(" ");
+  const rule = matchDept(fullText);
+  const dept = rule ? rule.dept : "综合门诊";
+  const alt = rule ? rule.alt : [];
+  const partTxt = S.collected.part || "相关";
+  const natTxt = S.collected.nature || "不适";
+  return {
+    type: "result",
+    data: {
+      recommended_department: dept,
+      alternative_departments: alt,
+      basis: [rule ? "根据您描述的" + (S.collected.part || "症状") + (S.collected.nature || "") + "（" + (S.collected.duration || "近期") + "），建议优先就诊" + dept + "。"
+                : "根据您描述的症状初步判断，建议先挂综合门诊/全科评估。"],
+      booking_guide: "",
+      navigation: "",
+      dialogue_script: buildDoctorScript(),
+      reminders: [],
+      disclaimer: "本产品仅供分诊参考，不替代医生诊断。",
+    },
+  };
+}
+</script>
+</body>
+</html>
+
+
+

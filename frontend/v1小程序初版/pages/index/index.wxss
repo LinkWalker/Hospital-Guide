@@ -1,0 +1,35 @@
+page { background-color: #f5f6f8; height: 100vh; }
+.chat-container { display: flex; flex-direction: column; height: 100vh; }
+.chat-list { flex: 1; padding: 30rpx; box-sizing: border-box; }
+
+/* 聊天气泡样式 */
+.msg-left, .msg-right { display: flex; margin-bottom: 30rpx; }
+.msg-left { justify-content: flex-start; }
+.msg-right { justify-content: flex-end; }
+.bubble { max-width: 70%; padding: 20rpx 30rpx; border-radius: 20rpx; font-size: 30rpx; line-height: 1.5; background-color: #fff; color: #333; box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.05); }
+.bubble-user { background-color: #0066cc; color: #fff; }
+
+/* 底部输入区 */
+.input-area { display: flex; padding: 20rpx; background-color: #fff; border-top: 1rpx solid #eee; position: fixed; bottom: 0; width: 100%; box-sizing: border-box; align-items: center; }
+.input-box { flex: 1; background: #f5f6f8; padding: 20rpx; border-radius: 40rpx; font-size: 30rpx; margin-right: 20rpx; }
+.send-btn { width: 140rpx !important; margin: 0; background-color: #0066cc; border-radius: 40rpx; font-size: 28rpx; padding: 0; height: 70rpx; line-height: 70rpx; }
+.voice-btn {
+  font-size: 44rpx;
+  padding: 0 20rpx 0 0;
+  color: #666;
+}
+.voice-btn:active {
+  color: #0066cc;
+}
+
+/* 结构化报告卡片 */
+.report-card { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; border-radius: 30rpx 30rpx 0 0; padding: 40rpx 30rpx; box-sizing: border-box; box-shadow: 0 -4rpx 20rpx rgba(0,0,0,0.1); z-index: 99; }
+.report-header { font-size: 32rpx; font-weight: bold; margin-bottom: 20rpx; color: #333; }
+.report-conclusion { margin-bottom: 20rpx; }
+.main-dept { font-size: 44rpx; color: #ff4d4f; font-weight: bold; margin-bottom: 10rpx; }
+.sub-dept { font-size: 28rpx; color: #666; }
+.report-reason { background: #f8f8f8; padding: 20rpx; border-radius: 10rpx; font-size: 28rpx; color: #666; margin-bottom: 30rpx; }
+.report-actions { display: flex; gap: 20rpx; margin-bottom: 20rpx; }
+.action-btn { flex: 1; margin: 0 !important; font-size: 28rpx; border-radius: 40rpx; background: #f0f0f0; color: #333; }
+.action-btn.primary { background: #e6f0ff; color: #0066cc; }
+.disclaimer { text-align: center; font-size: 24rpx; color: #999; }
