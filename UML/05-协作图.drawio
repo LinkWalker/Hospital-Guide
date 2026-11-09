@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-11-07T00:00:00.000Z" version="24.7.0" type="device">
+  <diagram id="d1" name="05-协作图">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="o0" value=":用户" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="60" y="300" width="90" height="40" as="geometry"/></mxCell>
+        <mxCell id="o1" value=":ChatPage(前端)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="220" y="60" width="130" height="40" as="geometry"/></mxCell>
+        <mxCell id="o2" value=":Orchestrator" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="380" y="300" width="130" height="40" as="geometry"/></mxCell>
+        <mxCell id="o3" value=":DialogStateMachine" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="380" y="480" width="150" height="40" as="geometry"/></mxCell>
+        <mxCell id="o4" value=":InfoExtractor" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="600" y="120" width="130" height="40" as="geometry"/></mxCell>
+        <mxCell id="o5" value=":KnowledgeRetriever" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="600" y="320" width="160" height="40" as="geometry"/></mxCell>
+        <mxCell id="o6" value=":LLMGateway" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="600" y="520" width="120" height="40" as="geometry"/></mxCell>
+        <mxCell id="o7" value=":SessionStore" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="120" y="480" width="130" height="40" as="geometry"/></mxCell>
+        <mxCell id="c1" value="1: 发送“说错了，不是胸口闷，而是肚子疼，持续三天”" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="o0" target="o1"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="c2" value="2: POST /chat" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="o1" target="o2"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="c3" value="2.1: load(session_id)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="o2" target="o7"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="c4" value="2.2: 正则检测改口 → 重置 collected/asked" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;exitX=1;exitY=0.2;entryX=0;entryY=0.4;" edge="1" parent="1" source="o2" target="o2"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="540" y="310"/><mxPoint x="540" y="260"/><mxPoint x="340" y="260"/></Array></mxGeometry></mxCell>
+        <mxCell id="c5" value="2.3: extract(新主诉)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="o2" target="o4"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="c6" value="2.4: merge_message / should_ask" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="o2" target="o3"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="c7" value="2.5: retrieve(规则+向量)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="o2" target="o5"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="c8" value="2.6: generate_triage(白名单校验)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="o2" target="o6"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="c9" value="2.7: save(会话)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="o2" target="o7"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="c10" value="3: type=result（消化内科）" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="o2" target="o1"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="c11" value="4: 渲染报告卡片" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="o1" target="o0"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="c12" value="5: 点击复制话术 → 剪贴板" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="o0" target="o1"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
