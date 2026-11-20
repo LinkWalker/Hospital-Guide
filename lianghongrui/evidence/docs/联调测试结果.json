@@ -1,0 +1,274 @@
+{
+  "base": "http://127.0.0.1:8000",
+  "run": "1795008069",
+  "health": {
+    "status": "ok",
+    "app": "智能导诊与挂号导航助手",
+    "llm_provider": "mock",
+    "llm_model": "",
+    "llm_ready": false,
+    "session_store": "memory",
+    "retriever": "vector",
+    "history_enabled": true
+  },
+  "total": 28,
+  "passed": 28,
+  "failed": 0,
+  "cases": [
+    {
+      "name": "健康检查",
+      "method": "GET",
+      "path": "/api/v1/health",
+      "status": 200,
+      "expected": 200,
+      "ok": true,
+      "detail": "{\"status\":\"ok\",\"app\":\"智能导诊与挂号导航助手\",\"llm_provider\":\"mock\",\"llm_model\":\"\",\"llm_ready\":false,\"session_store\":\"memory\",\"retriever\":\"vector\",\"history_enabled\":true}"
+    },
+    {
+      "name": "后端首页",
+      "method": "GET",
+      "path": "/",
+      "status": 200,
+      "expected": 200,
+      "ok": true,
+      "detail": "<!DOCTYPE html>\r\n<html lang=\"zh-CN\">\r\n<head>\r\n<meta charset=\"UTF-8\">\r\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n<title>智能导诊 · 门诊排队</title>\r\n<style>\r\n  :root {\r\n    --blue: #4a90e2;\r\n    --blue-dark: #3a7bd5;\r\n    --red: #c62828;\r\n    --orange: #e8a33d;\r\n    --bg: #f7f7f"
+    },
+    {
+      "name": "前端脚本",
+      "method": "GET",
+      "path": "/app.js",
+      "status": 200,
+      "expected": 200,
+      "ok": true,
+      "detail": "/* ============================================================\n * 门诊排队 · 智能导诊前端\n * - 优先调用真实后端 /api/v1/chat；后端不可用时降级为本地模拟\n * - 会话历史：后端 SQLite 优先；离线/mock 模式保存到 localStorage\n * - 所有用户输入都用 textContent / 转义后渲染，避免 XSS\n * ============================================================ */\n\nconst IS_FILE = loc"
+    },
+    {
+      "name": "普通分诊对话",
+      "method": "POST",
+      "path": "/api/v1/chat",
+      "status": 200,
+      "expected": 200,
+      "ok": true,
+      "detail": "{\"session_id\":\"it-normal-1795008069\",\"type\":\"result\",\"message\":\"根据您描述的症状，建议挂【消化内科】。\\n\\n判断依据：\\n· 腹痛、胃部不适、腹泻等消化系统症状建议挂消化内科。\\n备选科室：普通外科、全科\\n\\n挂号指引：可前往医院官方挂号平台或到院挂号窗口，选择「消化内科」进行挂号。\\n院内导航：挂号完成后，请根据医院院内导视前往消化内科所在楼层，如有疑问可询问导诊台。\\n\\n就诊沟通话术：医生您好，我最近两天出现腹部疼痛。想请您看看需要做什么检查、日常要注意什么，谢谢。\\n就医提醒：建议携带既往病历和检查报告；如症状加重请及"
+    },
+    {
+      "name": "普通分诊生成报告",
+      "method": "POST",
+      "path": "/api/v1/chat",
+      "status": 200,
+      "expected": "type=result 且有推荐科室",
+      "ok": true,
+      "detail": "{\"session\": \"it-normal-1795008069\", \"department\": \"消化内科\", \"alternative\": [\"普通外科\", \"全科\"], \"basis_count\": 1, \"messages\": [{\"request\": \"我肚子疼了两天，偶尔反酸，我是成年人\", \"type\": \"result\", \"message\": \"根据您描述的症状，建议挂【消化内科】。\\n\\n判断依据：\\n· 腹痛、胃部不适、腹泻等消化系统症状建议挂消化内科。\\n备选科室：普通外科、全科\\n\\n挂号指引：可前往医院官方挂号平台或到院挂号窗口，选择「消化内科\"}]}"
+    },
+    {
+      "name": "急症拦截",
+      "method": "POST",
+      "path": "/api/v1/chat",
+      "status": 200,
+      "expected": 200,
+      "ok": true,
+      "detail": "{\"session_id\":\"it-emergency-1795008069\",\"type\":\"urgent\",\"message\":\"您描述的症状属于紧急情况，请立即停止自行判断，尽快到最近医院的急诊科就诊；若症状严重或行动不便，请拨打 120 急救电话。\",\"data\":{\"level\":\"emergency\",\"label\":\"紧急\",\"keyword\":\"胸痛 + 冷汗/气短（组合）\"}}"
+    },
+    {
+      "name": "急症返回 urgent + 120",
+      "method": "POST",
+      "path": "/api/v1/chat",
+      "status": 200,
+      "expected": "type=urgent 且含 120",
+      "ok": true,
+      "detail": "{\"type\": \"urgent\", \"message\": \"您描述的症状属于紧急情况，请立即停止自行判断，尽快到最近医院的急诊科就诊；若症状严重或行动不便，请拨打 120 急救电话。\", \"data\": {\"level\": \"emergency\", \"label\": \"紧急\", \"keyword\": \"胸痛 + 冷汗/气短（组合）\"}}"
+    },
+    {
+      "name": "空消息拒绝",
+      "method": "POST",
+      "path": "/api/v1/chat",
+      "status": 422,
+      "expected": 422,
+      "ok": true,
+      "detail": "{\"detail\":[{\"type\":\"string_too_short\",\"loc\":[\"body\",\"message\"],\"msg\":\"String should have at least 1 character\",\"input\":\"\",\"ctx\":{\"min_length\":1}}]}"
+    },
+    {
+      "name": "纯空白拒绝",
+      "method": "POST",
+      "path": "/api/v1/chat",
+      "status": 422,
+      "expected": 422,
+      "ok": true,
+      "detail": "{\"detail\":[{\"type\":\"value_error\",\"loc\":[\"body\",\"message\"],\"msg\":\"Value error, 不能为空或仅含空白\",\"input\":\"   \",\"ctx\":{\"error\":{}}}]}"
+    },
+    {
+      "name": "超长消息拒绝",
+      "method": "POST",
+      "path": "/api/v1/chat",
+      "status": 422,
+      "expected": 422,
+      "ok": true,
+      "detail": "{\"detail\":[{\"type\":\"string_too_long\",\"loc\":[\"body\",\"message\"],\"msg\":\"String should have at most 4000 characters\",\"input\":\"肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚子疼肚"
+    },
+    {
+      "name": "历史列表",
+      "method": "GET",
+      "path": "/api/v1/history?limit=50",
+      "status": 200,
+      "expected": 200,
+      "ok": true,
+      "detail": "{\"items\":[{\"id\":\"it-emergency-1795008069\",\"title\":\"胸痛，冒冷汗，喘不上气\",\"status\":\"interrupted\",\"department\":null,\"urgent_level\":\"emergency\",\"message_count\":2,\"created_at\":\"2026-11-18T21:21:09\",\"updated_at\":\"2026-11-18T21:21:09\"},{\"id\":\"it-normal-1795008069\",\"title\":\"我肚子疼了两天，偶尔反酸，我是成年人\",\"status\":\"ready\",\"dep"
+    },
+    {
+      "name": "历史列表包含本次会话",
+      "method": "GET",
+      "path": "/api/v1/history",
+      "status": 200,
+      "expected": "包含 it-normal-1795008069",
+      "ok": true,
+      "detail": "{\"total\": 3, \"contains\": true}"
+    },
+    {
+      "name": "历史详情",
+      "method": "GET",
+      "path": "/api/v1/history/it-normal-1795008069",
+      "status": 200,
+      "expected": 200,
+      "ok": true,
+      "detail": "{\"id\":\"it-normal-1795008069\",\"title\":\"我肚子疼了两天，偶尔反酸，我是成年人\",\"status\":\"ready\",\"department\":\"消化内科\",\"urgent_level\":null,\"message_count\":2,\"created_at\":\"2026-11-18T21:21:09\",\"updated_at\":\"2026-11-18T21:21:09\",\"messages\":[{\"role\":\"user\",\"content\":\"我肚子疼了两天，偶尔反酸，我是成年人\"},{\"role\":\"assistant\",\"content\":\"根据您描述的症"
+    },
+    {
+      "name": "历史恢复",
+      "method": "POST",
+      "path": "/api/v1/history/it-normal-1795008069/restore",
+      "status": 200,
+      "expected": 200,
+      "ok": true,
+      "detail": "{\"session_id\":\"it-normal-1795008069\",\"status\":\"ready\",\"messages\":[{\"role\":\"user\",\"content\":\"我肚子疼了两天，偶尔反酸，我是成年人\"},{\"role\":\"assistant\",\"content\":\"根据您描述的症状，建议挂【消化内科】。\\n\\n判断依据：\\n· 腹痛、胃部不适、腹泻等消化系统症状建议挂消化内科。\\n备选科室：普通外科、全科\\n\\n挂号指引：可前往医院官方挂号平台或到院挂号窗口，选择「消化内科」进行挂号。\\n院内导航：挂号完成后，请根据医院院内导视前往消化内科所在楼层，如有疑问可询问导诊台。"
+    },
+    {
+      "name": "历史不存在 404",
+      "method": "GET",
+      "path": "/api/v1/history/it-not-exist-1795008069",
+      "status": 404,
+      "expected": 404,
+      "ok": true,
+      "detail": "{\"detail\":\"历史记录不存在\"}"
+    },
+    {
+      "name": "删除测试历史-普通",
+      "method": "DELETE",
+      "path": "/api/v1/history/it-normal-1795008069",
+      "status": 204,
+      "expected": 204,
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "删除测试历史-急症",
+      "method": "DELETE",
+      "path": "/api/v1/history/it-emergency-1795008069",
+      "status": 204,
+      "expected": 204,
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "附近医院",
+      "method": "GET",
+      "path": "/api/v1/hospitals/nearby?lat=26.074&lng=119.296&limit=4",
+      "status": 200,
+      "expected": 200,
+      "ok": true,
+      "detail": "{\"origin\":{\"lat\":26.074,\"lng\":119.296},\"items\":[{\"name\":\"福建医科大学附属第一医院茶亭院区\",\"level\":\"地图检索\",\"address\":\"茶中路20号(茶亭地铁站B口步行210米)\",\"latitude\":26.070318,\"longitude\":119.301956,\"distance_km\":0.72,\"registration_channel\":\"\",\"registration_url\":\"\",\"map_url\":\"https://uri.amap.com/marker?position=119.301956,26.070"
+    },
+    {
+      "name": "附近医院返回结果",
+      "method": "GET",
+      "path": "/api/v1/hospitals/nearby",
+      "status": 200,
+      "expected": "至少 1 家医院",
+      "ok": true,
+      "detail": "{\"total\": null, \"first\": \"福建医科大学附属第一医院茶亭院区\"}"
+    },
+    {
+      "name": "纬度越界拒绝",
+      "method": "GET",
+      "path": "/api/v1/hospitals/nearby?lat=91&lng=119",
+      "status": 422,
+      "expected": 422,
+      "ok": true,
+      "detail": "{\"detail\":[{\"type\":\"less_than_equal\",\"loc\":[\"query\",\"lat\"],\"msg\":\"Input should be less than or equal to 90\",\"input\":\"91\",\"ctx\":{\"le\":90.0}}]}"
+    },
+    {
+      "name": "清除测试位置",
+      "method": "DELETE",
+      "path": "/api/v1/preferences/location",
+      "status": 204,
+      "expected": 204,
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "保存测试位置",
+      "method": "PUT",
+      "path": "/api/v1/preferences/location",
+      "status": 200,
+      "expected": 200,
+      "ok": true,
+      "detail": "{\"label\":\"联调测试位置\",\"address\":\"福州大学旗山校区\",\"latitude\":26.057,\"longitude\":119.193,\"updated_at\":\"2026-11-18 21:21:10\"}"
+    },
+    {
+      "name": "读取保存位置",
+      "method": "GET",
+      "path": "/api/v1/preferences/location",
+      "status": 200,
+      "expected": 200,
+      "ok": true,
+      "detail": "{\"label\":\"联调测试位置\",\"address\":\"福州大学旗山校区\",\"latitude\":26.057,\"longitude\":119.193,\"updated_at\":\"2026-11-18 21:21:10\"}"
+    },
+    {
+      "name": "保存位置内容正确",
+      "method": "GET",
+      "path": "/api/v1/preferences/location",
+      "status": 200,
+      "expected": "label=联调测试位置",
+      "ok": true,
+      "detail": "{\"label\": \"联调测试位置\", \"address\": \"福州大学旗山校区\", \"latitude\": 26.057, \"longitude\": 119.193, \"updated_at\": \"2026-11-18 21:21:10\"}"
+    },
+    {
+      "name": "清理保存位置",
+      "method": "DELETE",
+      "path": "/api/v1/preferences/location",
+      "status": 204,
+      "expected": 204,
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "地址解析（高德）",
+      "method": "GET",
+      "path": "/api/v1/hospitals/geocode?address=旗山校区",
+      "status": 200,
+      "expected": [
+        200,
+        503
+      ],
+      "ok": true,
+      "detail": "{\"label\":\"福州大学旗山校区(西门)\",\"address\":\"上街镇乌龙江北大道2号福州大学(旗山校区)\",\"latitude\":26.057439,\"longitude\":119.193555,\"source\":\"amap\"}"
+    },
+    {
+      "name": "地址解析结果",
+      "method": "GET",
+      "path": "/api/v1/hospitals/geocode",
+      "status": 200,
+      "expected": "有经纬度",
+      "ok": true,
+      "detail": "{\"label\": \"福州大学旗山校区(西门)\", \"address\": \"上街镇乌龙江北大道2号福州大学(旗山校区)\", \"latitude\": 26.057439, \"longitude\": 119.193555, \"source\": \"amap\"}"
+    },
+    {
+      "name": "CORS/PNA 预检",
+      "method": "OPTIONS",
+      "path": "/api/v1/chat",
+      "status": 200,
+      "expected": "200 且允许 Origin null",
+      "ok": true,
+      "detail": "{\"date\": \"Wed, 18 Nov 2026 13:21:10 GMT\", \"server\": \"uvicorn\", \"content-length\": \"0\", \"access-control-allow-origin\": \"null\", \"access-control-allow-methods\": \"DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT\", \"access-control-allow-headers\": \"content-type\", \"access-control-allow-private-network\": \"true\", \"access-control-max-age\": \"600\", \"vary\": \"Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Access-Control-Request-Private-Network\"}"
+    }
+  ]
+}
