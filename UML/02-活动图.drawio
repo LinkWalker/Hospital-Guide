@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-11-07T00:00:00.000Z" version="24.7.0" type="device">
+  <diagram id="d1" name="02-活动图">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="sw1" value="用户 / 前端" style="swimlane;html=1;startSize=26;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;horizontal=0;" vertex="1" parent="1"><mxGeometry x="40" y="40" width="460" height="720" as="geometry"/></mxCell>
+        <mxCell id="sw2" value="后端（编排 + Agent 能力）" style="swimlane;html=1;startSize=26;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;horizontal=0;" vertex="1" parent="1"><mxGeometry x="520" y="40" width="660" height="720" as="geometry"/></mxCell>
+        <mxCell id="st" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#000000;fontColor=#ffffff;" vertex="1" parent="1"><mxGeometry x="220" y="80" width="30" height="30" as="geometry"/></mxCell>
+        <mxCell id="n1" value="输入症状描述" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="190" y="130" width="90" height="50" as="geometry"/></mxCell>
+        <mxCell id="d1" value="trim 后为空？" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;;fontSize=12" vertex="1" parent="1"><mxGeometry x="175" y="200" width="120" height="70" as="geometry"/></mxCell>
+        <mxCell id="n2" value="提交到后端" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="190" y="300" width="90" height="50" as="geometry"/></mxCell>
+        <mxCell id="n3" value="提示重新输入" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="60" y="300" width="100" height="50" as="geometry"/></mxCell>
+        <mxCell id="d2" value="命中急症红旗词？" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;;fontSize=12" vertex="1" parent="1"><mxGeometry x="530" y="130" width="170" height="80" as="geometry"/></mxCell>
+        <mxCell id="n4" value="展示急症告警" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"><mxGeometry x="300" y="200" width="120" height="50" as="geometry"/></mxCell>
+        <mxCell id="n5" value="拨打120 / 返回修改" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"><mxGeometry x="300" y="290" width="120" height="50" as="geometry"/></mxCell>
+        <mxCell id="n6" value="NLU 信息抽取" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="560" y="240" width="130" height="50" as="geometry"/></mxCell>
+        <mxCell id="n7" value="合并会话字段" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="560" y="320" width="130" height="50" as="geometry"/></mxCell>
+        <mxCell id="d3" value="缺字段且未达追问上限？" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;;fontSize=12" vertex="1" parent="1"><mxGeometry x="545" y="400" width="160" height="80" as="geometry"/></mxCell>
+        <mxCell id="n8" value="输出追问问题" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1"><mxGeometry x="300" y="420" width="140" height="50" as="geometry"/></mxCell>
+        <mxCell id="n9" value="规则检索 + 向量证据" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="720" y="330" width="150" height="50" as="geometry"/></mxCell>
+        <mxCell id="n10" value="LLM 结构化生成" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="720" y="420" width="150" height="50" as="geometry"/></mxCell>
+        <mxCell id="d4" value="科室在白名单枚举内？" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;;fontSize=12" vertex="1" parent="1"><mxGeometry x="715" y="500" width="170" height="80" as="geometry"/></mxCell>
+        <mxCell id="n11" value="拒绝/降级（mock 兜底）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"><mxGeometry x="540" y="500" width="150" height="50" as="geometry"/></mxCell>
+        <mxCell id="n12" value="展示报告卡片" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="880" y="560" width="150" height="50" as="geometry"/></mxCell>
+        <mxCell id="n13" value="可选：一键复制话术" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="880" y="650" width="150" height="50" as="geometry"/></mxCell>
+        <mxCell id="en" value="结束" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"><mxGeometry x="910" y="730" width="30" height="30" as="geometry"/></mxCell>
+        <mxCell id="en1" value="结束(急症)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"><mxGeometry x="340" y="380" width="30" height="30" as="geometry"/></mxCell>
+        <mxCell id="f1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="st" target="n1"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="f2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="n1" target="d1"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="f3" value="[否]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="d1" target="n2"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="f4" value="[是]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="d1" target="n3"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="f5" value="重新输入" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="n3" target="n1"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="f6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="n2" target="d2"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="f7" value="[是]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="d2" target="n4"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="f8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="n4" target="n5"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="f9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="n5" target="en1"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="f10" value="[否]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="d2" target="n6"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="f11" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="n6" target="n7"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="f12" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="n7" target="d3"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="f13" value="[是]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="d3" target="n8"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="f14" value="返回继续输入" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="n8" target="n1"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="370" y="470"/><mxPoint x="250" y="470"/></Array></mxGeometry></mxCell>
+        <mxCell id="f15" value="[否：信息齐全或达上限]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="d3" target="n9"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="f16" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="n9" target="n10"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="f17" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="n10" target="d4"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="f18" value="[否]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="d4" target="n11"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="f19" value="重试/降级" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="n11" target="n9"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="f20" value="[是]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="d4" target="n12"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="f21" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="n12" target="n13"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="f22" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="n13" target="en"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
