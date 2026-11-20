@@ -63,6 +63,9 @@ CREATE TABLE IF NOT EXISTS hospitals (
     name                 TEXT NOT NULL UNIQUE, -- 医院名
     level                TEXT,                 -- 等级（三甲/三乙...）
     city                 TEXT DEFAULT '福州',
+    address              TEXT,                 -- 医院地址（用于展示/地图）
+    latitude             REAL,                 -- 纬度（GCJ-02 近似，演示用；上线前按官方地址校准）
+    longitude            REAL,                 -- 经度
     registration_channel TEXT,                 -- 挂号渠道：114平台/公众号/官网/窗口
     registration_url     TEXT,                 -- 挂号入口
     source               TEXT DEFAULT '官方渠道',
@@ -80,7 +83,41 @@ CREATE TABLE IF NOT EXISTS knowledge_docs (
     created_at  TEXT DEFAULT (datetime('now','localtime'))
 );
 
+-- ---------------------------------------------------------------
+-- 6. 会话历史表（Alpha 新增）
+--    用途：用户主动保留的过往对话，支持列表、回看、恢复、删除。
+--    隐私：只存分诊所需的最小字段；提供单条删除/全部清空；默认保留 30 天。
+--    state 存 SessionState 快照，用于恢复多轮上下文；messages 存展示用对话。
+-- ---------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS conversation_history (
+    id             TEXT PRIMARY KEY,          -- 会话 ID（前端 UUID）
+    title          TEXT NOT NULL,             -- 首条用户主诉摘要
+    status         TEXT NOT NULL DEFAULT 'collecting', -- collecting | ready | interrupted
+    department     TEXT,                      -- 结果科室（列表展示用）
+    urgent_level   TEXT,                      -- 急症级别（列表展示用）
+    message_count  INTEGER NOT NULL DEFAULT 0,
+    messages       TEXT NOT NULL,             -- JSON: [{role, content, ...}]
+    state          TEXT,                      -- JSON: SessionState 快照（内部恢复用）
+    result         TEXT,                      -- JSON: 最后一次响应 data
+    created_at     TEXT NOT NULL,
+    updated_at     TEXT NOT NULL
+);
+
+-- ---------------------------------------------------------------
+-- 7. 上次使用的医院推荐位置（Alpha 新增，单机演示级）
+--    只有 id=1 一条；用于 file:// 与 localhost 之间共享位置。
+-- ---------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS saved_location (
+    id         INTEGER PRIMARY KEY CHECK (id = 1),
+    label      TEXT NOT NULL,
+    address    TEXT,
+    latitude   REAL NOT NULL,
+    longitude  REAL NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
 -- 常用查询索引
 CREATE INDEX IF NOT EXISTS idx_symptom_rules_keyword ON symptom_rules(keyword);
 CREATE INDEX IF NOT EXISTS idx_high_risk_level ON high_risk_signals(level);
 CREATE INDEX IF NOT EXISTS idx_departments_category ON departments(category);
+CREATE INDEX IF NOT EXISTS idx_history_updated ON conversation_history(updated_at DESC);
