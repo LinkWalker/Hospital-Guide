@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-11-07T00:00:00.000Z" version="24.7.0" type="device">
+  <diagram id="d1" name="03-类图">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="Orch" value="Orchestrator&amp;#10;&amp;#10;- store: SessionStore
+- extractor: InfoExtractor
+- interceptor: TriageInterceptor
+- dialog: DialogStateMachine
+- retriever: KnowledgeRetriever
+- llm: LLMGateway&amp;#10;&amp;#10;+ chat(session_id, message): ChatResponse" style="swimlane;html=1;startSize=30;horizontal=0;fontStyle=1;fillColor=#dae8fc;strokeColor=#6c8ebf;;fontSize=11" vertex="1" parent="1"><mxGeometry x="40" y="60" width="200" height="150" as="geometry"/></mxCell>
+        <mxCell id="InfoEx" value="InfoExtractor&amp;#10;&amp;#10;- _llm: LLMGateway (可选)&amp;#10;&amp;#10;+ extract(text): SymptomInfo
+- _rule_extract(text)
+- _merge(rule, llm)" style="swimlane;html=1;startSize=30;horizontal=0;fontStyle=1;fillColor=#dae8fc;strokeColor=#6c8ebf;;fontSize=11" vertex="1" parent="1"><mxGeometry x="300" y="40" width="190" height="120" as="geometry"/></mxCell>
+        <mxCell id="Triage" value="TriageInterceptor&amp;#10;&amp;#10;- _keyword_map: dict&amp;#10;&amp;#10;+ intercept(text): dict | None" style="swimlane;html=1;startSize=30;horizontal=0;fontStyle=1;fillColor=#dae8fc;strokeColor=#6c8ebf;;fontSize=11" vertex="1" parent="1"><mxGeometry x="300" y="200" width="190" height="120" as="geometry"/></mxCell>
+        <mxCell id="Dialog" value="DialogStateMachine&amp;#10;&amp;#10;- max_followup_turns: int&amp;#10;&amp;#10;+ next_question(state)
++ should_ask(state)
++ merge_message(state, info)" style="swimlane;html=1;startSize=30;horizontal=0;fontStyle=1;fillColor=#dae8fc;strokeColor=#6c8ebf;;fontSize=11" vertex="1" parent="1"><mxGeometry x="300" y="360" width="190" height="120" as="geometry"/></mxCell>
+        <mxCell id="KnowR" value="KnowledgeRetriever&amp;#10;&amp;#10;- rule: RuleRetriever
+- vector: VectorRetriever | None
++ department_names: list&amp;#10;&amp;#10;+ retrieve(symptom, raw_text): dict" style="swimlane;html=1;startSize=30;horizontal=0;fontStyle=1;fillColor=#dae8fc;strokeColor=#6c8ebf;;fontSize=11" vertex="1" parent="1"><mxGeometry x="560" y="40" width="210" height="140" as="geometry"/></mxCell>
+        <mxCell id="RuleR" value="RuleRetriever&amp;#10;&amp;#10;- rules: list&amp;#10;&amp;#10;+ search(symptom, raw_text): dict" style="swimlane;html=1;startSize=30;horizontal=0;fontStyle=1;fillColor=#dae8fc;strokeColor=#6c8ebf;;fontSize=11" vertex="1" parent="1"><mxGeometry x="560" y="240" width="210" height="110" as="geometry"/></mxCell>
+        <mxCell id="VecR" value="VectorRetriever&amp;#10;&amp;#10;- units: list
+- _vecs: list[Counter]&amp;#10;&amp;#10;+ search(symptom, top_k): list[RetrievedDoc]" style="swimlane;html=1;startSize=30;horizontal=0;fontStyle=1;fillColor=#dae8fc;strokeColor=#6c8ebf;;fontSize=11" vertex="1" parent="1"><mxGeometry x="560" y="400" width="210" height="110" as="geometry"/></mxCell>
+        <mxCell id="LLMG" value="LLMGateway&amp;#10;&amp;#10;- provider/base_url/api_key/model&amp;#10;&amp;#10;+ generate_triage(...): TriageResult
+- _openai_chat(messages)
+- _validate_content(...)
+- _mock_generate(...)" style="swimlane;html=1;startSize=30;horizontal=0;fontStyle=1;fillColor=#dae8fc;strokeColor=#6c8ebf;;fontSize=11" vertex="1" parent="1"><mxGeometry x="820" y="40" width="210" height="140" as="geometry"/></mxCell>
+        <mxCell id="SStore" value="«抽象» SessionStore&amp;#10;&amp;#10;&amp;#10;&amp;#10;+ save(state)
++ load(session_id)" style="swimlane;html=1;startSize=30;horizontal=0;fontStyle=1;fillColor=#dae8fc;strokeColor=#6c8ebf;;fontSize=11" vertex="1" parent="1"><mxGeometry x="40" y="260" width="190" height="110" as="geometry"/></mxCell>
+        <mxCell id="MemS" value="MemorySessionStore&amp;#10;&amp;#10;- _MEM: dict&amp;#10;&amp;#10;+ save() / load()" style="swimlane;html=1;startSize=30;horizontal=0;fontStyle=1;fillColor=#dae8fc;strokeColor=#6c8ebf;;fontSize=11" vertex="1" parent="1"><mxGeometry x="40" y="420" width="190" height="90" as="geometry"/></mxCell>
+        <mxCell id="RedS" value="RedisSessionStore&amp;#10;&amp;#10;- _r: Redis
+- _ttl&amp;#10;&amp;#10;+ save() / load()" style="swimlane;html=1;startSize=30;horizontal=0;fontStyle=1;fillColor=#dae8fc;strokeColor=#6c8ebf;;fontSize=11" vertex="1" parent="1"><mxGeometry x="40" y="560" width="190" height="90" as="geometry"/></mxCell>
+        <mxCell id="SymI" value="«数据» SymptomInfo&amp;#10;&amp;#10;part, nature, duration
+accompanying[], population" style="swimlane;html=1;startSize=30;horizontal=0;fontStyle=1;fillColor=#e1d5e7;strokeColor=#9673a6;;fontSize=11" vertex="1" parent="1"><mxGeometry x="820" y="240" width="190" height="120" as="geometry"/></mxCell>
+        <mxCell id="Sess" value="«数据» SessionState&amp;#10;&amp;#10;session_id, collected
+turn_count, interrupted
+asked[], history[]" style="swimlane;html=1;startSize=30;horizontal=0;fontStyle=1;fillColor=#e1d5e7;strokeColor=#9673a6;;fontSize=11" vertex="1" parent="1"><mxGeometry x="820" y="400" width="190" height="130" as="geometry"/></mxCell>
+        <mxCell id="TriR" value="«数据» TriageResult&amp;#10;&amp;#10;recommended_department
+alternative_departments[]
+basis[]/booking_guide
+navigation/dialogue_script
+reminders[]/disclaimer" style="swimlane;html=1;startSize=30;horizontal=0;fontStyle=1;fillColor=#e1d5e7;strokeColor=#9673a6;;fontSize=11" vertex="1" parent="1"><mxGeometry x="820" y="570" width="190" height="140" as="geometry"/></mxCell>
+        <mxCell id="RetD" value="«数据» RetrievedDoc&amp;#10;&amp;#10;text, source, score" style="swimlane;html=1;startSize=30;horizontal=0;fontStyle=1;fillColor=#e1d5e7;strokeColor=#9673a6;;fontSize=11" vertex="1" parent="1"><mxGeometry x="560" y="570" width="210" height="100" as="geometry"/></mxCell>
+        <mxCell id="CR" value="«数据» ChatRequest / ChatResponse&amp;#10;&amp;#10;session_id, message
+(1~4000字校验)
+type ∈ question|result|urgent" style="swimlane;html=1;startSize=30;horizontal=0;fontStyle=1;fillColor=#e1d5e7;strokeColor=#9673a6;;fontSize=11" vertex="1" parent="1"><mxGeometry x="300" y="540" width="190" height="130" as="geometry"/></mxCell>
+        <mxCell id="r1" value="1 — 1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="Orch" target="InfoEx"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="r2" value="1 — 1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="Orch" target="Triage"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="r3" value="1 — 1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="Orch" target="Dialog"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="r4" value="1 — 1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="Orch" target="KnowR"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="r5" value="1 — 1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="Orch" target="LLMG"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="r6" value="1 — 1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="Orch" target="SStore"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="r7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=0;dashed=0;" edge="1" parent="1" source="SStore" target="MemS"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="r8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=0;" edge="1" parent="1" source="SStore" target="RedS"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="r9" value="1 — 1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="KnowR" target="RuleR"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="r10" value="0..1 — 1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;" edge="1" parent="1" source="KnowR" target="VecR"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="r11" value="创建" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;" edge="1" parent="1" source="InfoEx" target="SymI"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="r12" value="创建" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;" edge="1" parent="1" source="LLMG" target="TriR"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="r13" value="返回" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;" edge="1" parent="1" source="VecR" target="RetD"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="r14" value="使用" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;" edge="1" parent="1" source="Orch" target="Sess"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+        <mxCell id="r15" value="使用" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;" edge="1" parent="1" source="Orch" target="CR"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
